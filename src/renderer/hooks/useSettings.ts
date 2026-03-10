@@ -12,6 +12,7 @@ const DEFAULT_CONFIG: AppConfig = {
   fontSize: 20,
   showOriginal: false,
   context: "",
+  contextPresets: [],
 };
 
 export function useSettings() {

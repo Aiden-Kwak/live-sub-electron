@@ -8,6 +8,7 @@ import { MicButton } from "./components/MicButton";
 import { StatusIndicator } from "./components/StatusIndicator";
 import { TranslationDisplay } from "./components/TranslationDisplay";
 import { SettingsPanel } from "./components/SettingsPanel";
+import { ContextLibrary } from "./components/ContextLibrary";
 import { ToastContainer, useToasts } from "./components/Toast";
 
 const SPEECH_LANGUAGES: Language[] = [
@@ -48,6 +49,7 @@ export default function App() {
 
   const [isOnline, setIsOnline] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [contextLibraryOpen, setContextLibraryOpen] = useState(false);
 
   const { toasts, addToast, dismissToast } = useToasts();
   const { config, isLoaded, setFontSize, toggleShowOriginal, updateConfig } = useSettings();
@@ -339,21 +341,46 @@ export default function App() {
           </div>
         </div>
 
-        {/* Context input (LLM only) */}
+        {/* Context input with preset dropdown (LLM only) */}
         {engine === "llm" && (
           <div className="max-w-5xl mx-auto mt-3">
-            <label className="text-xs text-gray-500 mb-1 block">
-              Context (helps LLM correct STT errors & choose right terminology)
-            </label>
-            <input
-              type="text"
-              value={context}
-              onChange={(e) => handleContextChange(e.target.value)}
-              disabled={isTranslating}
-              placeholder="e.g. Medical conference about cardiology, Game development talk about Unity..."
-              className={`w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 placeholder-gray-600 focus:outline-none focus:border-purple-500 ${isTranslating ? "opacity-50 cursor-not-allowed" : ""}`}
-              maxLength={500}
-            />
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-xs text-gray-500">Context</label>
+              <button
+                onClick={() => setContextLibraryOpen(true)}
+                disabled={isTranslating}
+                className={`text-xs text-purple-400 hover:text-purple-300 transition-colors ${isTranslating ? "opacity-50 cursor-not-allowed" : ""}`}
+              >
+                Manage Library
+              </button>
+            </div>
+            <div className="flex gap-2">
+              {config.contextPresets.length > 0 && (
+                <select
+                  value=""
+                  onChange={(e) => {
+                    const preset = config.contextPresets.find((p) => p.id === e.target.value);
+                    if (preset) handleContextChange(preset.value);
+                  }}
+                  disabled={isTranslating}
+                  className={`bg-gray-900 border border-gray-700 rounded-lg px-2 py-2 text-sm text-gray-300 focus:outline-none focus:border-purple-500 shrink-0 ${isTranslating ? "opacity-50 cursor-not-allowed" : ""}`}
+                >
+                  <option value="" disabled>Presets</option>
+                  {config.contextPresets.map((p) => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+              )}
+              <input
+                type="text"
+                value={context}
+                onChange={(e) => handleContextChange(e.target.value)}
+                disabled={isTranslating}
+                placeholder="Type context or select a preset..."
+                className={`flex-1 bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 placeholder-gray-600 focus:outline-none focus:border-purple-500 ${isTranslating ? "opacity-50 cursor-not-allowed" : ""}`}
+                maxLength={500}
+              />
+            </div>
           </div>
         )}
       </section>
@@ -414,6 +441,12 @@ export default function App() {
         onToggleShowOriginal={toggleShowOriginal}
         isOpen={settingsOpen}
         onClose={() => setSettingsOpen(false)}
+      />
+      <ContextLibrary
+        presets={config.contextPresets}
+        onSave={(presets) => updateConfig({ contextPresets: presets })}
+        isOpen={contextLibraryOpen}
+        onClose={() => setContextLibraryOpen(false)}
       />
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </main>

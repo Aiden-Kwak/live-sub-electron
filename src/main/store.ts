@@ -5,6 +5,12 @@
 
 import Store from "electron-store";
 
+export type ContextPreset = {
+  id: string;
+  name: string;
+  value: string;
+};
+
 export type AppConfig = {
   googleApiKey: string;
   openaiApiKey: string;
@@ -15,6 +21,7 @@ export type AppConfig = {
   fontSize: 14 | 20 | 28 | 40;
   showOriginal: boolean;
   context: string;
+  contextPresets: ContextPreset[];
 };
 
 const VALID_FONT_SIZES: readonly number[] = [14, 20, 28, 40];
@@ -35,6 +42,18 @@ const schema: Record<string, unknown> = {
   fontSize: { type: "number", enum: [14, 20, 28, 40], default: 20 },
   showOriginal: { type: "boolean", default: false },
   context: { type: "string", default: "" },
+  contextPresets: {
+    type: "array",
+    default: [],
+    items: {
+      type: "object",
+      properties: {
+        id: { type: "string" },
+        name: { type: "string" },
+        value: { type: "string" },
+      },
+    },
+  },
 };
 
 const DEFAULT_CONFIG: AppConfig = {
@@ -47,6 +66,7 @@ const DEFAULT_CONFIG: AppConfig = {
   fontSize: 20,
   showOriginal: false,
   context: "",
+  contextPresets: [],
 };
 
 const store = new Store<AppConfig>({
@@ -90,6 +110,11 @@ export function setConfig(partial: Partial<AppConfig>): { ok: true } {
         break;
       case "showOriginal":
         if (typeof value === "boolean") {
+          store.set(key, value);
+        }
+        break;
+      case "contextPresets":
+        if (Array.isArray(value)) {
           store.set(key, value);
         }
         break;

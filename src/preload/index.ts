@@ -43,6 +43,12 @@ type GetLanguagesResponse = {
   languages: Array<{ code: string; name: string }>;
 };
 
+type ContextPreset = {
+  id: string;
+  name: string;
+  value: string;
+};
+
 type AppConfig = {
   googleApiKey: string;
   openaiApiKey: string;
@@ -53,6 +59,7 @@ type AppConfig = {
   fontSize: 14 | 20 | 28 | 40;
   showOriginal: boolean;
   context: string;
+  contextPresets: ContextPreset[];
 };
 
 type TranscribeAudioResponse = {

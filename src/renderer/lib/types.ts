@@ -12,6 +12,12 @@ export type LlmModel = "gpt-4o-mini" | "gpt-4.1-mini" | "gpt-4.1-nano" | "gpt-5-
 
 export type FontSize = 14 | 20 | 28 | 40;
 
+export type ContextPreset = {
+  id: string;
+  name: string;
+  value: string;
+};
+
 export type AppConfig = {
   googleApiKey: string;
   openaiApiKey: string;
@@ -22,6 +28,7 @@ export type AppConfig = {
   fontSize: FontSize;
   showOriginal: boolean;
   context: string;
+  contextPresets: ContextPreset[];
 };
 
 // --- Translate IPC ---
